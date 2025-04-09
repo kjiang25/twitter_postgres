@@ -115,7 +115,66 @@ def insert_tweet(connection,tweet):
 
         # create/update the user
         sql = sqlalchemy.sql.text('''
+        INSERT INTO users (
+              id_users          -- tweet['user']['id'] 
+            , created_at        -- tweet['user']['created_at']
+            , updated_at        -- 
+            , id_urls           -- tweet['user']['url']
+            , friends_count     -- tweet['user']['friends_count']
+            , listed_count      -- tweet['user']['listed_count']
+            , favourites_count  -- tweet['user']['favourites_count']
+
+            , statuses_count    -- tweet['user']['statuses_count']
+            , protected         -- tweet['user']['protected']
+            , verified          -- tweet['user']['verified']
+            , screen_name       -- tweet['user']['screen_name']
+            , name              -- tweet['user']['name']
+            , location          -- tweet['user']['location']
+            , description       -- tweet['user']['description']
+            , withheld_in_countries 
+            , FOREIGN KEY (id_urls) REFERENCES urls(id_urls)
+            -- tweet['user']['url']
+            )
+            VALUES (
+              :id_users
+            , :created_at
+            , :updated_at
+            , :id_urls
+            , :friends_count
+            , :listed_count
+            , :favourites_count
+            , :statuses_count
+            , :protected
+            , :verified
+            , :screen_name
+            , :name
+            , :location
+            , :description
+            , :withheld_in_countries
+            , :id_urls
+            )
+            ON CONFLICT DO NOTHING
             ''')
+
+        res = connection.execute(sql,{
+              'id_users' : tweet['user']['id']
+            , 'created_at' : tweet['user']['created_at']
+            , 'updated_at' : tweet['created_at']
+            , 'id_urls' : tweet['user']['url']
+            , 'friends_count' : tweet['user']['friends_count']
+            , 'listed_count' : tweet['user']['listed_count']
+            , 'favourites_count' : tweet['user']['favourites_count']
+            , 'statuses_count' : tweet['user']['statuses_count']
+            , 'protected' : tweet['user']['protected']
+            , 'verified' : tweet['user']['verified']
+            , 'screen_name' : tweet['user']['screen_name']
+            , 'name' : tweet['user']['name']
+            , 'location' : tweet['user']['location']
+            , 'description' : tweet['user']['description']
+            , 'withheld_in_countries' :  tweet.get('withheld_in_countries', [])
+            , 'id_urls' : tweet['user']['url']
+            }
+            )
 
         ########################################
         # insert into the tweets table
@@ -271,6 +330,7 @@ if __name__ == '__main__':
         'application_name': 'load_tweets.py',
         })
     connection = engine.connect()
+    # postgresql://postgres:pass@localhost:10652/postgres
 
     # loop through the input file
     # NOTE:

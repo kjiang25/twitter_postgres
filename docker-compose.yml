@@ -6,12 +6,15 @@ services:
     volumes:
       - ./:/tmp/db
       - pg_denormalized:/var/lib/postgresql/data
+        # docker compose down not enough to start from scrach
+        # also have to remove the volume
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pass
       - PGUSER=postgres
     ports:
-      - 1:5432
+      - 10651:5432
+      # all ports < 1024 reserved for root
 
   pg_normalized:
     build: services/pg_normalized
@@ -23,7 +26,7 @@ services:
       - POSTGRES_PASSWORD=pass
       - PGUSER=postgres
     ports:
-      - 2:5432
+      - 10652:5432
 
 volumes:
     pg_normalized:
